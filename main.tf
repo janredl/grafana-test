@@ -47,7 +47,7 @@ resource "grafana_folder" "my_folder" {
 
 resource "grafana_dashboard" "my_dashboard" {
   provider = grafana.cloud
-  
+
   folder = grafana_folder.my_folder.uid
   config_json = jsonencode({
     "title" : "My Test Dashboard",
