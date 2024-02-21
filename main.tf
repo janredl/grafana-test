@@ -42,5 +42,13 @@ provider "grafana" {
 resource "grafana_folder" "my_folder" {
   provider = grafana.stack
 
-  title = "Buga Website"
+  title = "Test folder"
+}
+
+resource "grafana_dashboard" "my_dashboard" {
+  folder = grafana_folder.my_folder.uid
+  config_json = jsonencode({
+    "title" : "My Test Dashboard",
+    "uid" : "my-test-dashboard"
+  })
 }
