@@ -84,7 +84,7 @@ resource "grafana_cloud_access_policy_token" "sm_metrics_publish" {
 resource "grafana_synthetic_monitoring_installation" "sm_stack" {
   provider = grafana.cloud
 
-  stack_id              = grafana_cloud_stack.sm_stack.id
+  stack_id              = grafana_cloud_stack.stack.id
   metrics_publisher_key = grafana_cloud_access_policy_token.sm_metrics_publish.token
 }
 
