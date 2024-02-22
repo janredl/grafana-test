@@ -1,3 +1,8 @@
+locals {
+  cloud_region = "eu"
+  http_target  = "https://test-buga.fg.cz/"
+}
+
 # Create a stack
 provider "grafana" {
   alias         = "cloud"
@@ -9,7 +14,7 @@ resource "grafana_cloud_stack" "stack" {
 
   name        = "redltest"
   slug        = "redltest"
-  region_slug = "eu"
+  region_slug = local.cloud_region
   description = "Test Grafana Cloud Stack"
 }
 
@@ -53,4 +58,49 @@ resource "grafana_dashboard" "my_dashboard" {
     "title" : "My Test Dashboard",
     "uid" : "my-test-dashboard"
   })
+}
+
+//Install Synthetic Monitoring on the stack
+resource "grafana_cloud_access_policy" "sm_metrics_publish" {
+  provider = grafana.cloud
+
+  region = local.cloud_region
+  name   = "metric-publisher-for-sm"
+  scopes = ["metrics:write", "stacks:read"]
+  realm {
+    type       = "stack"
+    identifier = grafana_cloud_stack.stack.id
+  }
+}
+
+resource "grafana_cloud_access_policy_token" "sm_metrics_publish" {
+  provider = grafana.cloud
+
+  region           = local.cloud_region
+  access_policy_id = grafana_cloud_access_policy.sm_metrics_publish.policy_id
+  name             = "metric-publisher-for-sm"
+}
+
+resource "grafana_synthetic_monitoring_installation" "sm_stack" {
+  provider = grafana.cloud
+
+  stack_id              = grafana_cloud_stack.sm_stack.id
+  metrics_publisher_key = grafana_cloud_access_policy_token.sm_metrics_publish.token
+}
+
+data "grafana_synthetic_monitoring_probes" "main" {}
+
+resource "grafana_synthetic_monitoring_check" "http" {
+  job     = "HTTP Defaults"
+  target  = local.http_target
+  enabled = false
+  probes = [
+    data.grafana_synthetic_monitoring_probes.main.probes.Frankfurt,
+  ]
+  labels = {
+    label1 = "test label"
+  }
+  settings {
+    http {}
+  }
 }
