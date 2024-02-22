@@ -102,8 +102,8 @@ data "grafana_synthetic_monitoring_probes" "main" {
 resource "grafana_synthetic_monitoring_check" "http" {
   provider = grafana.sm
 
-  job     = "HTTP Defaults"
-  target  = local.http_target
+  job    = "HTTP Defaults"
+  target = local.http_target
   probes = [
     data.grafana_synthetic_monitoring_probes.main.probes.Frankfurt,
   ]
