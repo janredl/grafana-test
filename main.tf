@@ -88,7 +88,16 @@ resource "grafana_synthetic_monitoring_installation" "sm_stack" {
   metrics_publisher_key = grafana_cloud_access_policy_token.sm_metrics_publish.token
 }
 
-data "grafana_synthetic_monitoring_probes" "main" {}
+provider "grafana" {
+  alias           = "sm"
+  sm_access_token = grafana_synthetic_monitoring_installation.sm_stack.sm_access_token
+  sm_url          = grafana_synthetic_monitoring_installation.sm_stack.stack_sm_api_url
+}
+
+data "grafana_synthetic_monitoring_probes" "main" {
+  provider   = grafana.sm
+  depends_on = [grafana_synthetic_monitoring_installation.sm_stack]
+}
 
 resource "grafana_synthetic_monitoring_check" "http" {
   job     = "HTTP Defaults"
