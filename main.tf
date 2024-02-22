@@ -100,6 +100,8 @@ data "grafana_synthetic_monitoring_probes" "main" {
 }
 
 resource "grafana_synthetic_monitoring_check" "http" {
+  provider = grafana.sm
+
   job     = "HTTP Defaults"
   target  = local.http_target
   enabled = false
